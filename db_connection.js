@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 require('dotenv').config()
-const password = process.env.ATLAS_PASS
-const url = 
-`mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority
-`
+const url = process.env.ATLAS_PASS
+/* `mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority
+` */
 mongoose.connect(url)
     .then(result => {
         console.log('connected to mongodb')

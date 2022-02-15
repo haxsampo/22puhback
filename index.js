@@ -3,7 +3,7 @@ const express = require('express')
 var morgan = require('morgan')
 const app = express()
 const cors = require('cors')
-//const Person = require('db_connection')
+const Person = require('db_connection')
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -14,16 +14,15 @@ morgan.token('nro', function (req, res) { return JSON.stringify(req.body.number)
 app.use(morgan(':method :url :status :response-time ms Nimi\: :nimi nro\: :nro'))
 //--------
 const mongoose = require('mongoose')
-var password = process.argv[0]
-console.log(password)
-const url = `mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority`
+//var password = process.argv[2]
+//const url = `mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority`
 
-mongoose.connect(url)
+/* mongoose.connect(process.env.ATLAS_PASS)
 const puhSchema = new mongoose.Schema({
   name: String,
   number: String
 })
-const Person = mongoose.model('Person', puhSchema)
+const Person = mongoose.model('Person', puhSchema) */
 
 let persons = [
     {
@@ -70,7 +69,7 @@ app.post('/api/persons', (req, res) => {
   Person.find({}).then(prs => {
     res.json(prs)
   })
-  /* const body = req.body
+  const body = req.body
   if(body.name === undefined) {
     return res.status(400).json({error:"undefined content"})
   }
@@ -84,7 +83,7 @@ app.post('/api/persons', (req, res) => {
   } else {
     persons = persons.concat(prs)
     res.json(prs)
-  } */
+  }
 })
 
 app.delete('/api/persons/:id', (req, res) => {
