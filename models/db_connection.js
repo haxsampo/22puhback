@@ -26,13 +26,13 @@ puhSchema.set('toJSON', {
 })
 
 
-l = []
-Person.find({}).then(res => {
+/* let l = []
+Person.find({}).then(res => { 
     res.forEach(prs => {
         l = l.concat(prs)
     })
     mongoose.connection.close()
     return l
-})
+}) */
 
 module.exports = mongoose.model('Person', puhSchema)

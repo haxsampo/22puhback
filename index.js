@@ -3,7 +3,7 @@ const express = require('express')
 var morgan = require('morgan')
 const app = express()
 const cors = require('cors')
-const Person = require('db_connection')
+const Person = require('./models/db_connection')
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -24,7 +24,7 @@ const puhSchema = new mongoose.Schema({
 })
 const Person = mongoose.model('Person', puhSchema) */
 
-let persons = [
+/* let persons = [
     {
       "name": "Jaska Helevtti",
       "number": "040-123456",
@@ -45,17 +45,22 @@ let persons = [
       "number": "39-23-642312",
       "id": 4
     }
-  ]
+  ] */
 
-/* let persons = Person.find({}).then(res => {
+var l = []
+let persons = Person.find({}).then(res => {
     res.forEach(prs => {
         l = l.concat(prs)
     })
+    console.log(res)
     mongoose.connection.close()
-}) */
+})
 
 
 app.get('/api/persons/:id', (req, res) => {
+  /* Person.findById(req.params.id).then(prs => {
+    response.json(prs)
+  }) */
     const id = Number(req.params.id)
     const prs = persons.find(prs => prs.id === id)
     if(prs) {
