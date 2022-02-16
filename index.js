@@ -2,11 +2,12 @@ require('dotenv').config()
 const express = require('express')
 var morgan = require('morgan')
 const app = express()
+app.use(express.static('build'))
+app.use(express.json())
 const cors = require('cors')
 const Person = require('./models/db_connection')
 app.use(cors())
-app.use(express.json())
-app.use(express.static('build'))
+
 
 morgan.token('nimi', function (req, res) { return  JSON.stringify(req.body.name)})
 morgan.token('nro', function (req, res) { return JSON.stringify(req.body.number)})
@@ -24,28 +25,6 @@ const puhSchema = new mongoose.Schema({
 })
 const Person = mongoose.model('Person', puhSchema) */
 
-/* let persons = [
-    {
-      "name": "Jaska Helevtti",
-      "number": "040-123456",
-      "id": 1
-    },
-    {
-      "name": "Jaana Perkele",
-      "number": "39-44-5323523",
-      "id": 2
-    },
-    {
-      "name": "Jani Apina",
-      "number": "12-43-234345",
-      "id": 3
-    },
-    {
-      "name": "Maria iuasdiohu",
-      "number": "39-23-642312",
-      "id": 4
-    }
-  ] */
 
 /* var l = []
 let persons = Person.find({}).then(res => {
@@ -56,18 +35,17 @@ let persons = Person.find({}).then(res => {
     mongoose.connection.close()
 }) */
 
-
-app.get('/api/persons/:id', (req, res) => {
-  Person.findById(req.params.id).then(prs => {
-    response.json(prs)
-  })
-    /* const id = Number(req.params.id)
-    const prs = persons.find(prs => prs.id === id)
+app.get('/api/persons/:id', (req, res, next) => {
+  Person.findById(req.params.id)
+  .then(prs => {
     if(prs) {
-        res.json(prs)
+      res.json(prs)
     } else {
-        res.status(404).end()
-    } */
+      res.status(404).end()
+    } 
+  })
+  .catch(error =>
+    next(error))
 })
 
 app.post('/api/persons', (req, res) => {
@@ -94,10 +72,15 @@ app.post('/api/persons', (req, res) => {
   } */
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
+app.delete('/api/persons/:id', (req, res, error) => {
+  Person.findByIdAndRemove(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+      .catch(error => next(error))
+    /* const id = Number(req.params.id)
     persons = persons.filter(prs => prs.id !== id)
-    res.status(204).end()
+    res.status(204).end() */
 })
 
 app.get('/api/persons', (req, res)=> {
@@ -118,3 +101,17 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, res, next) => {
+  console.error(error.message)
+  if (error.name == 'CastError') {
+    return res.status(400).send({error:'malformatted _id'})
+  }
+  next(error)
+}
+app.use(errorHandler)
