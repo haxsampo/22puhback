@@ -47,48 +47,51 @@ const Person = mongoose.model('Person', puhSchema) */
     }
   ] */
 
-var l = []
+/* var l = []
 let persons = Person.find({}).then(res => {
     res.forEach(prs => {
+        console.log(prs)
         l = l.concat(prs)
     })
-    console.log(res)
     mongoose.connection.close()
-})
+}) */
 
 
 app.get('/api/persons/:id', (req, res) => {
-  /* Person.findById(req.params.id).then(prs => {
+  Person.findById(req.params.id).then(prs => {
     response.json(prs)
-  }) */
-    const id = Number(req.params.id)
+  })
+    /* const id = Number(req.params.id)
     const prs = persons.find(prs => prs.id === id)
     if(prs) {
         res.json(prs)
     } else {
         res.status(404).end()
-    }
+    } */
 })
 
 app.post('/api/persons', (req, res) => {
-  Person.find({}).then(prs => {
+  /* Person.find({}).then(prs => {
     res.json(prs)
-  })
+  }) */
   const body = req.body
   if(body.name === undefined) {
     return res.status(400).json({error:"undefined content"})
   }
-  const prs = {
+  const prs = new Person({
     name: body.name,
     number: body.number,
-    id: Math.floor(Math.random()*1000)
-  }
-  if(persons.map(person => person.name).includes(prs.name)) {
+    _id: Math.floor(Math.random()*1000)
+  })
+  prs.save().then(saved => {
+    res.json(saved)
+  })
+  /* if(persons.map(person => person.name).includes(prs.name)) {
     res.status(400).send({ error: 'name must be unique' })
   } else {
     persons = persons.concat(prs)
     res.json(prs)
-  }
+  } */
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -98,7 +101,10 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.get('/api/persons', (req, res)=> {
-    res.send(JSON.stringify(persons))
+  l = []
+  Person.find({}).then(ppl => {
+    res.json(ppl)
+  })
 })
 
 app.get('/info', (req, res)=> {

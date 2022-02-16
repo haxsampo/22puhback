@@ -3,6 +3,7 @@ require('dotenv').config()
 const url = process.env.ATLAS_PASS
 /* `mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority
 ` */
+console.log('connecting to', url)
 mongoose.connect(url)
     .then(result => {
         console.log('connected to mongodb')
@@ -19,11 +20,14 @@ const puhSchema = new mongoose.Schema({
 
 puhSchema.set('toJSON', {
     transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
+        if ('_id' in returnedObject) {
+            returnedObject.id = returnedObject._id.toString()
+        }
         delete returnedObject._id
         delete returnedObject.__v
     }
 })
+
 
 
 /* let l = []
@@ -33,6 +37,6 @@ Person.find({}).then(res => {
     })
     mongoose.connection.close()
     return l
-}) */
-
+})
+ */
 module.exports = mongoose.model('Person', puhSchema)
