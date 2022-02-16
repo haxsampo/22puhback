@@ -48,11 +48,8 @@ app.get('/api/persons/:id', (req, res, next) => {
     next(error))
 })
 
-app.post('/api/persons', (req, res) => {
-  /* Person.find({}).then(prs => {
-    res.json(prs)
-  }) */
-  const body = req.body
+app.post('/api/persons', (req, res, next) => {
+  /* const body = req.body
   if(body.name === undefined) {
     return res.status(400).json({error:"undefined content"})
   }
@@ -63,16 +60,18 @@ app.post('/api/persons', (req, res) => {
   })
   prs.save().then(saved => {
     res.json(saved)
+  }) */
+  const prs = new Person({
+    name: body.name,
+    number: body.number,
+    _id: Math.floor(Math.random()*1000)
   })
-  /* if(persons.map(person => person.name).includes(prs.name)) {
-    res.status(400).send({ error: 'name must be unique' })
-  } else {
-    persons = persons.concat(prs)
-    res.json(prs)
-  } */
+  prs.save().then(saved => {
+    res.json(saved)
+  }).catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res, error) => {
+app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
     .then(result => {
       res.status(204).end()
@@ -83,17 +82,19 @@ app.delete('/api/persons/:id', (req, res, error) => {
     res.status(204).end() */
 })
 
-app.get('/api/persons', (req, res)=> {
+app.get('/api/persons', (req, res, next)=> {
   l = []
   Person.find({}).then(ppl => {
     res.json(ppl)
-  })
+  }).catch(error => next(error))
 })
 
-app.get('/info', (req, res)=> {
-    let t = new Date()
-    let dt = t.toDateString()+" "+t.toLocaleTimeString()
-    res.send(`<p>Phonebook has ${persons.length} people</p>`+JSON.stringify(dt))
+app.get('/info', (req, res, next)=> {
+  let t = new Date()
+  let dt = t.toDateString()+" "+t.toLocaleTimeString()
+  Person.find({}).then(ppl => {
+    res.send(`<p>Phonebook has ${ppl.length} people</p>`+JSON.stringify(dt))
+  }).catch(error => next(error))
 })
 
 const PORT = process.env.PORT || 3001
@@ -111,6 +112,9 @@ const errorHandler = (error, request, res, next) => {
   console.error(error.message)
   if (error.name == 'CastError') {
     return res.status(400).send({error:'malformatted _id'})
+  }
+  if (error.name == 'ReferenceError') {
+    return res.status(400).send({error:'name undefined'})
   }
   next(error)
 }
