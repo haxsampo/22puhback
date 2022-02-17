@@ -49,18 +49,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 app.post('/api/persons', (req, res, next) => {
-  /* const body = req.body
-  if(body.name === undefined) {
-    return res.status(400).json({error:"undefined content"})
-  }
-  const prs = new Person({
-    name: body.name,
-    number: body.number,
-    _id: Math.floor(Math.random()*1000)
-  })
-  prs.save().then(saved => {
-    res.json(saved)
-  }) */
+  const body = req.body
   const prs = new Person({
     name: body.name,
     number: body.number,
@@ -71,15 +60,25 @@ app.post('/api/persons', (req, res, next) => {
   }).catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (req, res, next) => {
+  const body = req.body
+  const person = {
+    name: body.name,
+    number: body.number
+  }
+  Person.findByIdAndUpdate(req.params.id, person, {new: true})
+    .then(updatedNote => {
+      res.json(updatedNote)
+    })
+    .catch(error => next(error))
+})
+
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
     .then(result => {
       res.status(204).end()
     })
       .catch(error => next(error))
-    /* const id = Number(req.params.id)
-    persons = persons.filter(prs => prs.id !== id)
-    res.status(204).end() */
 })
 
 app.get('/api/persons', (req, res, next)=> {
@@ -111,7 +110,7 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, res, next) => {
   console.error(error.message)
   if (error.name == 'CastError') {
-    return res.status(400).send({error:'malformatted _id'})
+    return res.status(400).send({error:'malformatted id'})
   }
   if (error.name == 'ReferenceError') {
     return res.status(400).send({error:'name undefined'})
