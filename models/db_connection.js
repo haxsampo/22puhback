@@ -13,8 +13,32 @@ mongoose.connect(url)
     })
 
 const puhSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        minlength: 3,
+        required: true
+    },
+    number: {
+        type: String,
+        validate: {
+            validator: function(num) { //as
+                ret = true
+                var indices = []
+                for(var i=0;i<num.length;i++) {
+                    if(num[i]==="-") indices.push(i)
+                }
+                if(num.length<8) {
+                    ret = false
+                }
+                splitted = num.split("-")
+                if(!(splitted[0].length==2 || splitted[0].length==3)) {
+                    ret = false
+                }
+                return ret
+            },
+            message: "number is formatted incorrectly"
+        }
+    },
     _id: Number
 })
 

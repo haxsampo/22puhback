@@ -55,6 +55,8 @@ app.post('/api/persons', (req, res, next) => {
     number: body.number,
     _id: Math.floor(Math.random()*1000)
   })
+  //error = prs.validateSync();
+  //console.log(error.errors['number'].message)
   prs.save().then(saved => {
     res.json(saved)
   }).catch(error => next(error))
@@ -107,14 +109,18 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const errorHandler = (error, request, res, next) => {
+const errorHandler = (error, req, res, next) => {
   console.error(error.message)
-  if (error.name == 'CastError') {
+  if (error.name === 'CastError') {
     return res.status(400).send({error:'malformatted id'})
   }
-  if (error.name == 'ReferenceError') {
+  if (error.name === 'ReferenceError') {
     return res.status(400).send({error:'name undefined'})
   }
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
+  }
+
   next(error)
 }
 app.use(errorHandler)
