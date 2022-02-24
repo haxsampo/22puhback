@@ -5,51 +5,51 @@ const url = process.env.ATLAS_PASS
 ` */
 console.log('connecting to', url)
 mongoose.connect(url)
-    .then(result => {
-        console.log('connected to mongodb')
-    })
-    .catch((error) => {
-        console.log('error connecting to mongodb: ', error.message)
-    })
+  .then(() => {
+    console.log('connected to mongodb')
+  })
+  .catch((error) => {
+    console.log('error connecting to mongodb: ', error.message)
+  })
 
 const puhSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        minlength: 3,
-        required: true
-    },
-    number: {
-        type: String,
-        validate: {
-            validator: function(num) { //as
-                ret = true
-                var indices = []
-                for(var i=0;i<num.length;i++) {
-                    if(num[i]==="-") indices.push(i)
-                }
-                if(num.length<8) {
-                    ret = false
-                }
-                splitted = num.split("-")
-                if(!(splitted[0].length==2 || splitted[0].length==3)) {
-                    ret = false
-                }
-                return ret
-            },
-            message: "number is formatted incorrectly"
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    validate: {
+      validator: function(num) {
+        var ret = true
+        var indices = []
+        for(var i=0;i<num.length;i++) {
+          if(num[i]==='-') indices.push(i)
         }
-    },
-    _id: Number
+        if(num.length<8) {
+          ret = false
+        }
+        var splitted = num.split('-')
+        if(!(splitted[0].length==2 || splitted[0].length==3)) {
+          ret = false
+        }
+        return ret
+      },
+      message: 'number is formatted incorrectly'
+    }
+  },
+  _id: Number
 })
 
 puhSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        if ('_id' in returnedObject) {
-            returnedObject.id = returnedObject._id.toString()
-        }
-        delete returnedObject._id
-        delete returnedObject.__v
+  transform: (document, returnedObject) => {
+    if ('_id' in returnedObject) {
+      returnedObject.id = returnedObject._id.toString()
     }
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
 })
 
 

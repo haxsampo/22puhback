@@ -9,43 +9,22 @@ const Person = require('./models/db_connection')
 app.use(cors())
 
 
-morgan.token('nimi', function (req, res) { return  JSON.stringify(req.body.name)})
-morgan.token('nro', function (req, res) { return JSON.stringify(req.body.number)})
+morgan.token('nimi', function (req) { return  JSON.stringify(req.body.name)})
+morgan.token('nro', function (req) { return JSON.stringify(req.body.number)})
 
 app.use(morgan(':method :url :status :response-time ms Nimi\: :nimi nro\: :nro'))
-//--------
-const mongoose = require('mongoose')
-//var password = process.argv[2]
-//const url = `mongodb+srv://fullstack:${password}@cluster22.tfkvv.mongodb.net/puhback?retryWrites=true&w=majority`
-
-/* mongoose.connect(process.env.ATLAS_PASS)
-const puhSchema = new mongoose.Schema({
-  name: String,
-  number: String
-})
-const Person = mongoose.model('Person', puhSchema) */
-
-
-/* var l = []
-let persons = Person.find({}).then(res => {
-    res.forEach(prs => {
-        console.log(prs)
-        l = l.concat(prs)
-    })
-    mongoose.connection.close()
-}) */
 
 app.get('/api/persons/:id', (req, res, next) => {
   Person.findById(req.params.id)
-  .then(prs => {
-    if(prs) {
-      res.json(prs)
-    } else {
-      res.status(404).end()
-    } 
-  })
-  .catch(error =>
-    next(error))
+    .then(prs => {
+      if(prs) {
+        res.json(prs)
+      } else {
+        res.status(404).end()
+      } 
+    })
+    .catch(error =>
+      next(error))
 })
 
 app.post('/api/persons', (req, res, next) => {
@@ -77,14 +56,13 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
-      .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (req, res, next)=> {
-  l = []
   Person.find({}).then(ppl => {
     res.json(ppl)
   }).catch(error => next(error))
@@ -92,7 +70,7 @@ app.get('/api/persons', (req, res, next)=> {
 
 app.get('/info', (req, res, next)=> {
   let t = new Date()
-  let dt = t.toDateString()+" "+t.toLocaleTimeString()
+  let dt = t.toDateString()+' '+t.toLocaleTimeString()
   Person.find({}).then(ppl => {
     res.send(`<p>Phonebook has ${ppl.length} people</p>`+JSON.stringify(dt))
   }).catch(error => next(error))
